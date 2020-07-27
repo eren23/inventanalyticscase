@@ -1,0 +1,3 @@
+{
+  "mongoURI": "mongodb+srv://invent:invent123@cluster0.ihppv.mongodb.net/invent?retryWrites=true&w=majority"
+}
