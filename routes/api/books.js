@@ -12,7 +12,7 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(500).json({ errors: errors.array() });
     }
 
     const { name } = req.body;
@@ -21,7 +21,7 @@ router.post(
       let book = await Book.findOne({ name });
       if (book) {
         return res
-          .status(400)
+          .status(500)
           .json({ errors: [{ msg: "User already exist" }] });
       }
 
