@@ -22,7 +22,7 @@ router.post(
       if (book) {
         return res
           .status(500)
-          .json({ errors: [{ msg: "User already exist" }] });
+          .json({ errors: [{ msg: "Book already exist" }] });
       }
 
       const length = await Book.count();
@@ -60,7 +60,6 @@ router.get("/:books_id", async (req, res) => {
     const book = await Book.findOne({
       customid: req.params.books_id,
     });
-    console.log(req.params.books_id);
 
     if (!book) return res.status(400).send({ msg: "Book not Found" });
 

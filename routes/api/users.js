@@ -59,7 +59,6 @@ router.get("/:users_id", async (req, res) => {
     const user = await User.findOne({
       customid: req.params.users_id,
     });
-    console.log(req.params.users_id);
 
     if (!user) return res.status(400).send({ msg: "User not Found" });
 
@@ -103,55 +102,63 @@ router.post("/:users_id/borrow/:books_id", async (req, res) => {
 // @route       POST /users/:user_id/borrow/:book_id
 // @desc        Return a book
 // @access      Public
-router.post("/:users_id/return/:books_id", async (req, res) => {
-  try {
-    const user = await User.findOne({
-      customid: req.params.users_id,
-    });
-
-    if (!user) return res.status(500).send({ msg: "User not Found" });
-
-    const book = await Book.findOne({
-      customid: req.params.books_id,
-    });
-
-    if (!book) return res.status(500).send({ msg: "Book not Found" });
-
-    let ifBookExist = false;
-
-    const removeIndex = user.currentbook
-      .map((item) => item.name)
-      .indexOf(book.name);
-
-    user.currentbook.map((books) => {
-      if (book.name === books.name) {
-        return (ifBookExist = true);
-      }
-    });
-
-    if (ifBookExist == false)
-      return res.status(500).send({ msg: "Book doesn't belong to the user" });
-
-    user.currentbook.splice(removeIndex, 1);
-
-    const score = req.body.score;
-    const bookToReturn = { name: book.name };
-    user.oldbook.unshift(bookToReturn);
-    book.available = true;
-
-    if (book.reviewcounter == 0) {
-      book.review = score;
-    } else {
-      book.review =
-        (book.review * book.reviewcounter + score) / (book.reviewcounter + 1);
+router.post(
+  "/:users_id/return/:books_id",
+  [check("score", "Score is required").not().isEmpty()],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json({ errors: errors.array() });
     }
-    book.reviewcounter++;
+    try {
+      const user = await User.findOne({
+        customid: req.params.users_id,
+      });
 
-    await user.save();
-    await book.save();
-    res.json(user);
-  } catch (err) {
-    res.status(500).send("server error");
+      if (!user) return res.status(500).send({ msg: "User not Found" });
+
+      const book = await Book.findOne({
+        customid: req.params.books_id,
+      });
+
+      if (!book) return res.status(500).send({ msg: "Book not Found" });
+
+      let ifBookExist = false;
+
+      const removeIndex = user.currentbook
+        .map((item) => item.name)
+        .indexOf(book.name);
+
+      user.currentbook.map((books) => {
+        if (book.name === books.name) {
+          return (ifBookExist = true);
+        }
+      });
+
+      if (ifBookExist == false)
+        return res.status(500).send({ msg: "Book doesn't belong to the user" });
+
+      user.currentbook.splice(removeIndex, 1);
+
+      const score = req.body.score;
+      const bookToReturn = { name: book.name };
+      user.oldbook.unshift(bookToReturn);
+      book.available = true;
+
+      if (book.reviewcounter == 0) {
+        book.review = score;
+      } else {
+        book.review =
+          (book.review * book.reviewcounter + score) / (book.reviewcounter + 1);
+      }
+      book.reviewcounter++;
+
+      await user.save();
+      await book.save();
+      res.json(user);
+    } catch (err) {
+      res.status(500).send("server error");
+    }
   }
-});
+);
 module.exports = router;
