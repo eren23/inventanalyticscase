@@ -10,7 +10,6 @@ const UserSchema = new mongoose.Schema({
     required: true,
   },
   currentbook: [
-    // experience is an array of other fields
     {
       name: {
         type: String,
@@ -19,7 +18,6 @@ const UserSchema = new mongoose.Schema({
     },
   ],
   oldbook: [
-    // education is an array of other fields
     {
       name: {
         type: String,
@@ -30,4 +28,3 @@ const UserSchema = new mongoose.Schema({
 });
 
 module.exports = User = mongoose.model("user", UserSchema);
-// We are exporting 2 things under User first thing is the model name which is user and the UserSchema the thigns we created above
